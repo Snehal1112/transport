@@ -3,14 +3,15 @@ package client
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
+
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readconcern"
-	"log"
-	"os"
 )
 
 var (
@@ -118,6 +119,7 @@ func (conn *Connect) FindOne(collectionName string, q interface{}) (result bson.
 	return result, nil
 }
 
+// FindByID function find the first matching document in collection based on given ID.
 func (conn *Connect) FindByID(collectionName string, ID string) (result bson.M, err error) {
 	query := func(ctx mongo.SessionContext, c *mongo.Collection) error {
 		objID, err := primitive.ObjectIDFromHex(ID)
@@ -191,7 +193,7 @@ func (conn *Connect) DeleteByID(collectionName string, id string) (deleteCount i
 }
 
 // UpdateDocByID function update the document by given id
-func (conn *Connect) UpdateDocByID(collection string, id string, data interface{}) (updatedDoc bson.M,err error) {
+func (conn *Connect) UpdateDocByID(collection string, id string, data interface{}) (updatedDoc bson.M, err error) {
 	query := func(ctx mongo.SessionContext, c *mongo.Collection) error {
 		var objID primitive.ObjectID
 		objID, err = primitive.ObjectIDFromHex(id)
@@ -208,7 +210,7 @@ func (conn *Connect) UpdateDocByID(collection string, id string, data interface{
 	}
 
 	if err = updateAction(); err != nil {
-		return nil , err
+		return nil, err
 	}
 
 	return updatedDoc, nil

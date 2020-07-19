@@ -2,12 +2,13 @@ package client
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/bson"
 	"log"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/bson"
 )
 
-func setup() *Connect{
+func setup() *Connect {
 	ctx := context.Background()
 	url := "mongodb+srv://snehal:VXmWJuqjM8CdtzOa@erp-kod8k.mongodb.net/erp?retryWrites=true&w=majority"
 	return NewConnection(ctx, url)
@@ -15,7 +16,7 @@ func setup() *Connect{
 
 func TestNewConnection(t *testing.T) {
 	conn := setup()
-	err := conn.CreateDocument("leptop", bson.D{{"name", "sd"},{"name","ddd"}})
+	err := conn.CreateDocument("leptop", bson.D{{"name", "sd"}, {"name", "ddd"}})
 	if err != nil {
 		log.Println("Error:", err)
 	}
@@ -40,7 +41,7 @@ func TestConnect_FindByID(t *testing.T) {
 
 func TestConnect_FindOne(t *testing.T) {
 	conn := setup()
-	_, err := conn.FindOne("leptop", bson.D{{"name","sd"}})
+	_, err := conn.FindOne("leptop", bson.D{{"name", "sd"}})
 	if err != nil {
 		log.Println("Error:", err)
 	}
@@ -48,7 +49,7 @@ func TestConnect_FindOne(t *testing.T) {
 
 func TestConnect_Search(t *testing.T) {
 	conn := setup()
-	_, err := conn.Search("leptop", bson.D{{"name","sd"}}, 0,0)
+	_, err := conn.Search("leptop", bson.D{{"name", "sd"}}, 0, 0)
 	if err != nil {
 		log.Println("Error:", err)
 	}
@@ -56,7 +57,7 @@ func TestConnect_Search(t *testing.T) {
 
 func TestConnect_UpdateDocByID(t *testing.T) {
 	conn := setup()
-	result, err := conn.UpdateDocByID("leptop", "5f12fd8ecd9ee87cc6de167b", bson.D{{"name","snehal"}})
+	result, err := conn.UpdateDocByID("leptop", "5f12fd8ecd9ee87cc6de167b", bson.D{{"name", "snehal"}})
 	if err != nil {
 		log.Println("Error:", err)
 	}
