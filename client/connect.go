@@ -3,15 +3,14 @@ package client
 import (
 	"context"
 	"fmt"
-	"log"
-	"os"
-
 	"github.com/sirupsen/logrus"
+	"github.com/snehal1112/transport/config"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readconcern"
+	"log"
 )
 
 var (
@@ -23,27 +22,18 @@ var (
 type Connect struct {
 	ctx context.Context
 	url string
-
+	cfg *config.Config
 	log *logrus.Logger
 }
 
 // NewConnection function used to initialize the connection client.
 func NewConnection(ctx context.Context, url string) *Connect {
-	logLevel, _ := logrus.ParseLevel("info")
 
-	con := &Connect{ctx, url, &logrus.Logger{
-		Out: os.Stderr,
-		Formatter: &logrus.TextFormatter{
-			DisableTimestamp: false,
-			FullTimestamp:    true,
-			TimestampFormat:  "02/01/2006 03:04 PM",
-		},
-		Hooks: make(logrus.LevelHooks),
-		Level: logLevel,
-	}}
+	con := &Connect{ctx, url,config.NewConfig(), initLogger("info")}
 
 	con.log.WithFields(logrus.Fields{
 		"url": con.url,
+		"database": con.cfg.GetDatabaseName(),
 	}).Info("Request to connect mongoDB server")
 
 	return con
@@ -83,7 +73,7 @@ func (conn *Connect) withCollection(collection string, fn func(mongo.SessionCont
 
 	err = mongo.WithSession(conn.ctx, session, func(sessionCtx mongo.SessionContext) error {
 		// TODO: insert some before and after hooks.
-		c := client.Database(databaseName).Collection(collection)
+		c := client.Database(conn.cfg.GetDatabaseName()).Collection(collection)
 		return fn(sessionCtx, c)
 	})
 	return err

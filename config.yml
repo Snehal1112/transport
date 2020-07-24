@@ -1,0 +1,5 @@
+# Database credentials
+database:
+  user: "snehal"
+  pass: "VXmWJuqjM8CdtzOa"
+  name: "erp"
