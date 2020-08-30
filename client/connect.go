@@ -24,29 +24,39 @@ type Connect struct {
 	ctx context.Context
 	url string
 
-	log *logrus.Logger
+	log      *logrus.Logger
+	loglevel string
 }
 
 // NewConnection function used to initialize the connection client.
-func NewConnection(ctx context.Context, url string) *Connect {
-	logLevel, _ := logrus.ParseLevel("info")
+func NewConnection(options ...Options) *Connect {
+	conn := &Connect{}
+	for _, option := range options {
+		option(conn)
+	}
 
-	con := &Connect{ctx, url, &logrus.Logger{
+	logLevel, err := logrus.ParseLevel(conn.loglevel)
+
+	if err != nil {
+		logLevel = logrus.ErrorLevel
+	}
+
+	conn.log = &logrus.Logger{
 		Out: os.Stderr,
 		Formatter: &logrus.TextFormatter{
 			DisableTimestamp: false,
 			FullTimestamp:    true,
-			TimestampFormat:  "02/01/2006 03:04 PM",
+			TimestampFormat:  "02/01/2006 03:04:12 PM",
 		},
 		Hooks: make(logrus.LevelHooks),
 		Level: logLevel,
-	}}
+	}
 
-	con.log.WithFields(logrus.Fields{
-		"url": con.url,
+	conn.log.WithFields(logrus.Fields{
+		"url": conn.url,
 	}).Info("Request to connect mongoDB server")
 
-	return con
+	return conn
 }
 
 func (conn *Connect) getMongoClient() (*mongo.Client, error) {
@@ -142,6 +152,10 @@ func (conn *Connect) FindByID(collectionName string, ID string) (result bson.M, 
 func (conn *Connect) Search(collectionName string, q interface{}, skip int, limit int) (searchResults []bson.M, err error) {
 	query := func(ctx mongo.SessionContext, c *mongo.Collection) error {
 		fieldOptions := options.Find().SetSkip(int64(skip)).SetLimit(int64(limit))
+
+		if q == nil {
+			q = bson.D{}
+		}
 		cursor, err := c.Find(ctx, q, fieldOptions)
 		if err != nil {
 			return err

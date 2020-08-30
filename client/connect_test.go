@@ -11,7 +11,11 @@ import (
 func setup() *Connect {
 	ctx := context.Background()
 	url := "mongodb+srv://snehal:VXmWJuqjM8CdtzOa@erp-kod8k.mongodb.net/erp?retryWrites=true&w=majority"
-	return NewConnection(ctx, url)
+	return NewConnection(
+		WithCtx(ctx),
+		WithURL(url),
+		WithLogLevel("error"),
+	)
 }
 
 func TestNewConnection(t *testing.T) {
@@ -49,10 +53,11 @@ func TestConnect_FindOne(t *testing.T) {
 
 func TestConnect_Search(t *testing.T) {
 	conn := setup()
-	_, err := conn.Search("leptop", bson.D{{"name", "sd"}}, 0, 0)
+	data, err := conn.Search("leptop", nil, 0, 0)
 	if err != nil {
 		log.Println("Error:", err)
 	}
+	log.Println(data)
 }
 
 func TestConnect_UpdateDocByID(t *testing.T) {
