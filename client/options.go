@@ -6,6 +6,13 @@ import "context"
 // to set the config
 type Options func(c *Connect)
 
+// WithDatabase self referenceing function to set the database name.
+func WithDatabase(database string) Options {
+	return func(c *Connect) {
+		c.databaseName = database
+	}
+}
+
 // WithCtx self referenceing function to set the context
 func WithCtx(ctx context.Context) Options {
 	return func(c *Connect) {

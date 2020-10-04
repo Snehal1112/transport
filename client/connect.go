@@ -15,14 +15,14 @@ import (
 )
 
 var (
-	mgoClient    *mongo.Client
-	databaseName = "erp"
+	mgoClient *mongo.Client
 )
 
 // Connect used to initialize the connection.
 type Connect struct {
-	ctx context.Context
-	url string
+	ctx          context.Context
+	url          string
+	databaseName string
 
 	log      *logrus.Logger
 	loglevel string
@@ -73,7 +73,7 @@ func (conn *Connect) getMongoClient() (*mongo.Client, error) {
 	return mgoClient, nil
 }
 
-// withDatabase function perform an action on given collection.
+// withCollection function perform an action on given collection.
 func (conn *Connect) withCollection(collection string, fn func(mongo.SessionContext, *mongo.Collection) error) error {
 	client, err := conn.getMongoClient()
 	if err != nil {
@@ -93,7 +93,7 @@ func (conn *Connect) withCollection(collection string, fn func(mongo.SessionCont
 
 	err = mongo.WithSession(conn.ctx, session, func(sessionCtx mongo.SessionContext) error {
 		// TODO: insert some before and after hooks.
-		c := client.Database(databaseName).Collection(collection)
+		c := client.Database(conn.databaseName).Collection(collection)
 		return fn(sessionCtx, c)
 	})
 	return err

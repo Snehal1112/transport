@@ -3,17 +3,37 @@ package client
 import (
 	"context"
 	"log"
+	"os"
 	"testing"
 
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+var (
+	DbURL  = ""
+	DbName = ""
+)
+
+func init() {
+	DbURL = os.Getenv("DB_URL")
+	DbName = os.Getenv("DB_NAME")
+}
+
 func setup() *Connect {
 	ctx := context.Background()
-	url := "mongodb+srv://snehal:VXmWJuqjM8CdtzOa@erp-kod8k.mongodb.net/erp?retryWrites=true&w=majority"
+
+	if len(DbURL) == 0 {
+		log.Fatal("DbName should not be empty")
+	}
+
+	if len(DbName) == 0 {
+		log.Fatal("DbName should not be empty")
+	}
+
 	return NewConnection(
+		WithDatabase(DbName),
 		WithCtx(ctx),
-		WithURL(url),
+		WithURL(DbURL),
 		WithLogLevel("error"),
 	)
 }
